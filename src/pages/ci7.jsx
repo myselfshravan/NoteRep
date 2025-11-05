@@ -168,7 +168,7 @@ const cseaimlsem7 = [
   {
     title: 'MULTICORE ARCHITECTURE and PROGRAMMING Lab',
     description: '(0:0:1) CIL73',
-    link: 'https://drive.google.com/drive/folders/1IdqLJffstiIB4PyMpdzgkG-LghuWb8fM?usp=sharing',
+    link: 'https://drive.google.com/drive/folders/10lOY-DJ7WfXh7zETRoLv9kkFRooaDmIs?usp=drive_link',
     github: '',
   },
   {
