@@ -25,6 +25,11 @@ import { BadgeCheck, Target, TrendingUp, ChevronDown } from 'lucide-react'
 import AcademicHistory from '@/components/AcademicHistory'
 import LoginHistory from '@/components/LoginHistory'
 import ErrorBoundary from '@/components/ErrorBoundary'
+import {
+  reportApiError,
+  reportApiSuccess,
+  logAnalyticsEvent,
+} from '@/utils/apiObservability'
 
 if (!firebase.apps.length) {
   firebase.initializeApp(firebaseConfig)
@@ -420,24 +425,64 @@ function HomePage() {
   // Fetch endpoints on component mount
   useEffect(() => {
     const fetchEndpoints = async () => {
+      const endpointsUrl = 'https://reconnect-msrit.vercel.app/endpoints'
+      const startedAt = performance.now()
       try {
         setEndpointsLoading(true)
-        const response = await fetch('https://reconnect-msrit.vercel.app/endpoints')
+        const response = await fetch(endpointsUrl)
+        const durationMs = performance.now() - startedAt
+
+        if (!response.ok) {
+          let bodyPreview = null
+          try {
+            bodyPreview = await response.clone().text()
+          } catch {}
+          reportApiError({
+            endpointName: 'endpoints',
+            url: endpointsUrl,
+            response,
+            error: null,
+            durationMs,
+            responseBodyPreview: bodyPreview,
+          })
+          throw new Error(`HTTP ${response.status}`)
+        }
+
         const data = await response.json()
-        
+        reportApiSuccess({
+          endpointName: 'endpoints',
+          url: endpointsUrl,
+          status: response.status,
+          durationMs,
+        })
+
         if (data.active_endpoints) {
           setEndpoints(data.active_endpoints)
-          
+
           // Initialize endpoint from localStorage or use current from API
           const storedEndpoint = localStorage.getItem('currentEndpoint')
           const initialEndpoint = storedEndpoint || data.current
-          
+
           setCurrentEndpoint(initialEndpoint)
           setSelectedEndpoint(initialEndpoint)
           localStorage.setItem('currentEndpoint', initialEndpoint)
         }
       } catch (error) {
+        const durationMs = performance.now() - startedAt
         console.error('Failed to fetch endpoints:', error)
+        // Only log network/parse errors here; HTTP errors are already reported above.
+        if (!/^HTTP \d+$/.test(error?.message || '')) {
+          reportApiError({
+            endpointName: 'endpoints',
+            url: endpointsUrl,
+            response: null,
+            error,
+            durationMs,
+          })
+        }
+        logAnalyticsEvent('endpoints_api_fallback', {
+          error_message: error?.message || 'unknown',
+        })
         // Fallback to hardcoded endpoints for backward compatibility
         const fallbackEndpoints = [
           { name: 'newparentseven', title: 'FOR EVEN TERM 2024-2025' },
@@ -616,11 +661,46 @@ function HomePage() {
         toast.info('Logging in with test data...')
         apiurl = 'https://reconnect-msrit.vercel.app/test'
       }
-      
-      const response = await fetch(apiurl)
+
+      const startedAt = performance.now()
+      let response
+      try {
+        response = await fetch(apiurl)
+      } catch (networkErr) {
+        const durationMs = performance.now() - startedAt
+        reportApiError({
+          endpointName: 'sis',
+          url: apiurl,
+          response: null,
+          error: networkErr,
+          durationMs,
+          usn: currentUsn,
+          semesterEndpoint: endpoint,
+        })
+        setStudentData(null)
+        setError(networkErr.message || 'Network error')
+        setHasError(true)
+        throw networkErr
+      }
+
       let data
       try {
         if (!response.ok) {
+          let bodyPreview = null
+          try {
+            bodyPreview = await response.clone().text()
+          } catch {}
+          const durationMs = performance.now() - startedAt
+          reportApiError({
+            endpointName: 'sis',
+            url: apiurl,
+            response,
+            error: null,
+            durationMs,
+            usn: currentUsn,
+            semesterEndpoint: endpoint,
+            responseBodyPreview: bodyPreview,
+          })
           if (response.status === 500) {
             const error = new Error(
               'Server error: This endpoint is currently inactive. Try switching to a different semester endpoint.'
@@ -628,10 +708,22 @@ function HomePage() {
             error.isEndpointError = true
             throw error
           }
-          const resp = await response.json()
-          throw new Error(resp.error || 'Failed to fetch data.')
+          let parsed = null
+          try {
+            parsed = bodyPreview ? JSON.parse(bodyPreview) : null
+          } catch {}
+          throw new Error((parsed && parsed.error) || 'Failed to fetch data.')
         }
         data = await response.json()
+        const durationMs = performance.now() - startedAt
+        reportApiSuccess({
+          endpointName: 'sis',
+          url: apiurl,
+          status: response.status,
+          durationMs,
+          usn: currentUsn,
+          semesterEndpoint: endpoint,
+        })
       } catch (error) {
         setStudentData(null)
         setError(error.message || 'An unexpected error occurred')
