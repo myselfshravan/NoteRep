@@ -18,7 +18,7 @@ export function ContentNew(props) {
                 href={links.curriculum}
                 className="hover:shadowpress rounded-lg bg-gradient-to-r from-cyan-500 to-blue-500 p-2"
               >
-                CSE (AI & ML) Curriculum
+                {links.curriculumText || 'CSE (AI & ML) Curriculum'}
               </ButtonLink>
             </div>
           ) : null}
@@ -81,7 +81,13 @@ export function ContentNew(props) {
         </div>
         <ul
           role="list"
-          className="mx-auto mt-8 grid max-w-2xl grid-cols-1 gap-6 text-sm sm:mt-10 sm:grid-cols-2 md:gap-y-10 lg:max-w-none lg:grid-cols-3 lg:items-center"
+          className={`mx-auto mt-8 grid gap-6 text-sm sm:mt-10 md:gap-y-10 lg:items-center ${
+            drive.length === 1
+              ? 'grid-cols-1 max-w-md'
+              : drive.length === 2
+              ? 'grid-cols-1 sm:grid-cols-2 max-w-4xl'
+              : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 lg:max-w-none'
+          }`}
         >
           {drive
             .sort((a, b) => {
