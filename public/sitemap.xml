@@ -36,6 +36,11 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://noterep.vercel.app/ci7</loc>
+    <lastmod>2025-06-22</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://noterep.vercel.app/ci8</loc>
     <lastmod>2025-06-22</lastmod>
     <priority>0.8</priority>
@@ -102,6 +107,11 @@
   </url>
   <url>
     <loc>https://noterep.vercel.app/syllabus_ci4</loc>
+    <lastmod>2025-06-22</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://noterep.vercel.app/syllabus_ci8</loc>
     <lastmod>2025-06-22</lastmod>
     <priority>0.8</priority>
   </url>
