@@ -36,6 +36,14 @@ function ContributeModal({ isOpen, onClose, onSubmit }) {
       return
     }
 
+    if (
+      title.trim().toLowerCase() === 'q' ||
+      title.trim().toLowerCase() === 'test'
+    ) {
+      setSubmitError('Please enter a valid, descriptive title')
+      return
+    }
+
     const validLinks = links.filter(
       (link) => link.url.trim() && link.description.trim()
     )
@@ -173,7 +181,17 @@ export function LinksComponent() {
           .orderBy('createdate', 'desc')
           .get()
         console.log(response)
-        const data = response.docs.map((doc) => doc.data())
+        const data = response.docs
+          .map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+          }))
+          .filter(
+            (item) =>
+              item.title &&
+              item.title.trim().toLowerCase() !== 'q' &&
+              item.title.trim().toLowerCase() !== 'test'
+          )
         setOtherlinks(data)
         setLoading(false)
       } catch (error) {
@@ -251,7 +269,17 @@ export function LinksComponent() {
                 .collection('otherlinks')
                 .orderBy('createdate', 'desc')
                 .get()
-              const newData = response.docs.map((doc) => doc.data())
+              const newData = response.docs
+                .map((doc) => ({
+                  id: doc.id,
+                  ...doc.data(),
+                }))
+                .filter(
+                  (item) =>
+                    item.title &&
+                    item.title.trim().toLowerCase() !== 'q' &&
+                    item.title.trim().toLowerCase() !== 'test'
+                )
               setOtherlinks(newData)
             } catch (err) {
               console.error('Error submitting links:', err)
