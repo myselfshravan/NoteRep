@@ -282,9 +282,8 @@ const RoastAI = ({ studentData, onRoastGenerated }) => {
     ---
     Give a roast that is playful and extreamly sarcastic. Focus on Cources and SGPAs which has extream scores like lows and highs.`
 
-    const endpoint = 'https://api.groq.com/openai/v1/chat/completions'
+    const endpoint = '/api/chat'
     const body = JSON.stringify({
-      model: 'llama-3.1-8b-instant',
       messages: [
         {
           role: 'system',
@@ -300,7 +299,6 @@ const RoastAI = ({ studentData, onRoastGenerated }) => {
     })
     const headers = {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${process.env.NEXT_PUBLIC_GROQ_API}`,
     }
 
     try {

@@ -399,9 +399,8 @@ export function Bot({ moodstatus }) {
     }
     setChatHistory([...chathistory, newChatEntry])
 
-    const endpoint = 'https://api.groq.com/openai/v1/chat/completions'
+    const endpoint = '/api/chat'
     const body = JSON.stringify({
-      model: 'llama-3.1-8b-instant',
       messages: [
         {
           role: 'system',
@@ -440,7 +439,6 @@ export function Bot({ moodstatus }) {
     })
     const headers = {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${process.env.NEXT_PUBLIC_GROQ_API}`,
     }
     let json_body = JSON.parse(body)
     // console.log('Request:', json_body)

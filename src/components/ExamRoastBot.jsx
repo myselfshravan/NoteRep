@@ -216,9 +216,8 @@ const ExamRoastBot = ({ examData, onRoastGenerated }) => {
     ---
     Give a roast that is playful and extremely sarcastic. Focus on their SGPA and CGPA, especially if there's a big difference between them.`
 
-    const endpoint = 'https://api.groq.com/openai/v1/chat/completions'
+    const endpoint = '/api/chat'
     const body = JSON.stringify({
-      model: 'llama-3.1-8b-instant',
       messages: [
         {
           role: 'system',
@@ -233,7 +232,6 @@ const ExamRoastBot = ({ examData, onRoastGenerated }) => {
     })
     const headers = {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${process.env.NEXT_PUBLIC_GROQ_API}`,
     }
 
     try {
